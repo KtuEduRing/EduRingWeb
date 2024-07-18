@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://unpkg.com/htmx.org@1.9.10"
+      integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
+      crossorigin="anonymous"
+    ></script>
+    <script src="{{ url_for('static', filename='js/main.js')}}"></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='css/adaptive-color-scheme.css') }}"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Chicle&family=Kavoon&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>EduRing</title>
+
+    <script>
+      // setInterval(updateColorScheme, 60000);
+    </script>
+  </head>
+
+  <body class="{{ color_scheme }}">
+    <header>
+      <img
+        alt="EduRing"
+        src="{{ url_for('static', filename='icons/EduRingx795.webp') }}"
+      />
+    </header>
+
+    <main>
+      <div id="submit_song">
+        <h1>Submit Your Favorite Song</h1>
+        <div id="submit_song_inputs">
+          <input
+            id="song_submit_input"
+            type="text"
+            name="song_submit_input"
+            placeholder="Song Title Or Spotify Url"
+            required
+          />
+          <button id="submit">Submit</button>
+        </div>
+      </div>
+      <hr />
+      <div id="vote_songs">
+        <h2>Song Submissions</h2>
+        <table>
+          <tbody>
+            {% if songs %} {% for song in songs %}
+            <tr>
+              <td id="song">
+                <iframe
+                  id="song"
+                  style="border-radius: 12px"
+                  src="https://open.spotify.com/embed/track/{{ song.spotify_id }}?utm_source=oembed"
+                  width="100%"
+                  height="152"
+                  frameborder="0"
+                  allow="clipboard-write; encrypted-media"
+                  loading="lazy"
+                >
+                </iframe>
+                <div id="interaction_content">
+                  <button
+                    id="vote_button"
+                    hx-post="/vote/{{ song.spotify_id }}"
+                  >
+                    VOTE
+                  </button>
+                  <div id="votes">
+                    {% if song.votes %}
+                    <p>{{ song.votes }} Votes</p>
+                    {% else %}
+                    <p>No Votes</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </td>
+            </tr>
+            {% endfor %} {% else %}
+            <tr>
+              <td>
+                <h3>No Songs Were Submitted</h3>
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <footer>
+      <p>Copyright &copy; 2024 KtuEduRing</p>
+    </footer>
+  </body>
+</html>

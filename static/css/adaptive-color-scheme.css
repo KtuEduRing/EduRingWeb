@@ -1,0 +1,373 @@
+:root {
+  /* Morning theme */
+  --morning-bg: #fff5e1;
+  --morning-text: #c80036;
+  /*header*/
+  --morning-header-bg: #ff6969;
+  /*button*/
+  --morning-button-bg: #ff6969;
+  --morning-button-text: #fff5e1;
+  /*votes*/
+  --morning-votes-bg: #c80036;
+  --morning-votes-text: #fff5e1;
+  /*input*/
+  --morning-input-bg: #fff5e1;
+  --morning-input-border: #ff6969;
+  /*footer*/
+  --morning-footer-bg: #c80036;
+  --morning-footer-text: #fff5e1;
+
+  /* Day theme */
+  --day-bg: #ffd4b2;
+  --day-text: #ba4d4d;
+  /*header*/
+  --day-header-bg: #e9c46a;
+  /*button*/
+  /* --day-button-bg: #E9C46A; */
+  --day-button-bg: #86c8bc;
+  --day-button-text: #5f8d85;
+  /*votes*/
+  --day-votes-bg: #ceedc7;
+  --day-votes-text: #5f8d85;
+  /*input*/
+  --day-input-bg: #ffd4b2;
+  --day-input-border: #ceedc7;
+  /*footer*/
+  --day-footer-bg: #86c8bc;
+  --day-footer-text: #ffd4b2;
+
+  /* Evening theme */
+  --evening-bg: #fc4100;
+  --evening-text: #00215e;
+  /*header*/
+  --evening-header-bg: #ffc55a;
+  /*button*/
+  --evening-button-bg: #ffc55a;
+  --evening-button-text: #00215e;
+  /*votes*/
+  --evening-votes-bg: #2c4e80;
+  --evening-votes-text: #ffc55a;
+  /*input*/
+  --evening-input-bg: #fc4100;
+  --evening-input-border: #ffc55a;
+  /*footer*/
+  --evening-footer-bg: #00215e;
+  --evening-footer-text: #ffc55a;
+
+  /* Night theme */
+  --night-bg: #1f2544;
+  --night-text: #ffd0ec;
+  /*header*/
+  --night-header-bg: #474f7a;
+  /*button*/
+  --night-button-bg: #474f7a;
+  --night-button-text: #ffd0ec;
+  /*votes*/
+  --night-votes-bg: #81689d;
+  --night-votes-text: #ffd0ec;
+  /*input*/
+  --night-input-bg: #1f2544;
+  --night-input-border: #474f7a;
+  /*footer*/
+  --night-footer-bg: #474f7a;
+  --night-footer-text: #ffd0ec;
+}
+
+/* Base styles */
+body {
+  font-family: Arial, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+
+  transition: background-color 1s, color 1s;
+}
+
+/* Theme styles */
+body.morning {
+  font-family: "Chicle", serif;
+
+  background: var(--morning-bg);
+  color: var(--morning-text);
+}
+
+body.day {
+  /* font-family: "Chicle", serif; */
+  font-family: "Kavoon", serif;
+
+  background-color: var(--day-bg);
+  color: var(--day-text);
+}
+
+body.evening {
+  background-color: var(--evening-bg);
+  color: var(--evening-text);
+}
+
+body.night {
+  background-color: var(--night-bg);
+  color: var(--night-text);
+}
+
+/* Header styles */
+header {
+  padding: 20px;
+  text-align: center;
+  border-radius: 40px;
+}
+
+.morning header {
+  background-color: var(--morning-header-bg);
+}
+
+.day header {
+  background-color: var(--day-header-bg);
+}
+
+.evening header {
+  background-color: var(--evening-header-bg);
+}
+
+.night header {
+  background-color: var(--night-header-bg);
+}
+
+/* Button styles */
+button {
+  padding: 10px 20px;
+  font-size: x-large;
+  border: none;
+  cursor: pointer;
+}
+
+.morning button {
+  background-color: var(--morning-button-bg);
+  color: var(--morning-button-text);
+}
+
+.day button {
+  background-color: var(--day-button-bg);
+  color: var(--day-button-text);
+}
+
+.evening button {
+  background-color: var(--evening-button-bg);
+  color: var(--evening-button-text);
+}
+
+.night button {
+  background-color: var(--night-button-bg);
+  color: var(--night-button-text);
+}
+
+/* Votes styles */
+div#votes {
+  width: 20%;
+  min-width: 50px;
+  text-align: center;
+  box-shadow: 0px 0px 8px #00000080;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.morning div#votes {
+  background-color: var(--morning-votes-bg);
+  color: var(--morning-votes-text);
+}
+
+.day div#votes {
+  background-color: var(--day-votes-bg);
+  color: var(--day-votes-text);
+}
+
+.evening div#votes {
+  background-color: var(--evening-votes-bg);
+  color: var(--evening-votes-text);
+}
+
+.night div#votes {
+  background-color: var(--night-votes-bg);
+  color: var(--night-votes-text);
+}
+
+/* Input styles */
+input[id="song_submit_input"] {
+  border-radius: 5px;
+  width: 100%;
+  padding: 10px 20px;
+}
+
+.morning input[id="song_submit_input"] {
+  background-color: var(--morning-input-bg);
+  border: 1px solid var(--morning-input-border);
+  color: var(--morning-text);
+}
+
+.day input[id="song_submit_input"] {
+  background-color: var(--day-input-bg);
+  border: 1px solid var(--day-input-border);
+  color: var(--day-text);
+}
+
+.evening input[id="song_submit_input"] {
+  background-color: var(--evening-input-bg);
+  border: 1px solid var(--evening-input-border);
+  color: var(--evening-text);
+}
+
+.night input[id="song_submit_input"] {
+  background-color: var(--night-input-bg);
+  border: 1px solid var(--night-input-border);
+  color: var(--night-text);
+}
+
+/* Footer styles */
+footer {
+  padding: 20px;
+  text-align: center;
+}
+
+.morning footer {
+  background-color: var(--morning-footer-bg);
+  color: var(--morning-footer-text);
+}
+
+.day footer {
+  background-color: var(--day-footer-bg);
+  color: var(--day-footer-text);
+}
+
+.evening footer {
+  background-color: var(--evening-footer-bg);
+  color: var(--evening-footer-text);
+}
+
+.night footer {
+  background-color: var(--night-footer-bg);
+  color: var(--night-footer-text);
+}
+
+.day #submit_song h1 {
+  text-shadow: 0.5px 0.5px #f1f4d8, 1px 1px #f1f4d8, 2px 2px #f1f4d8,
+    2.5px 2.5px #f1f4d8, 3px 3px #e57c31, 3.5px 3.5px #e57c31, 4px 4px #e57c31,
+    4.5px 4.5px #e57c31, 5px 5px #e57c31, 5.5px 5.5px #e57c31, 6px 6px #e57c31,
+    6.5px 6.5px #e57c31, 7px 7px #e57c31, 7.5px 7.5px #e57c31, 8px 8px #e57c31;
+  font-size: 3rem;
+}
+
+#vote_songs > h2 {
+  font-size: 2rem;
+}
+
+/* Other styles (unchanged) */
+div[id="login_form"] {
+  width: 400px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  box-shadow: rgba(240, 46, 170, 0.4) 5px 5px, rgba(240, 46, 170, 0.3) 10px 10px,
+    rgba(240, 46, 170, 0.2) 15px 15px, rgba(240, 46, 170, 0.1) 20px 20px,
+    rgba(240, 46, 170, 0.05) 25px 25px;
+}
+
+.day div[id="login_form"] {
+  background-color: var(--day-header-bg);
+  color: var(--day-text);
+}
+
+#google_login {
+  color: var(--day-button-text);
+
+  border-radius: 10px;
+
+  margin: 0 auto;
+  display: block;
+}
+
+img {
+  width: 150px;
+  height: auto;
+  margin: 20px 0;
+}
+
+main {
+  padding: 20px;
+}
+
+h1,
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+li {
+  border: 1px solid #ccc;
+}
+
+td {
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-bottom: 20px;
+}
+
+button#vote_button {
+  width: 100%;
+  text-shadow: 
+      1px 1px 0px #d5d5d5, 
+      2px 2px 0px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 8px #00000080;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+div#interaction_content {
+  display: flex;
+  justify-content: space-between;
+}
+
+td#song {
+  width: 90%;
+}
+
+td#vote {
+  text-align: center;
+  width: fit-content;
+}
+
+iframe#song {
+  box-shadow: 0px 0px 8px #00000080;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+#submit_song_inputs {
+  display: flex;
+  justify-content: space-between;
+}
+
+button[id="submit"] {
+  border-radius: 5px;
+}
+
+.label-and-input {
+  width: 100%;
+  align-items: center;
+}

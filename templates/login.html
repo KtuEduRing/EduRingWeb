@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login Page</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static',filename='css/adaptive-color-scheme.css') }}"
+    />
+    <script
+      src="https://unpkg.com/htmx.org@1.9.10"
+      integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
+      crossorigin="anonymous"
+    ></script>
+
+    <script type="text/javascript" defer>
+      function redirect_to_google_login() {
+        location.href = "{{ url_for('login') }}";
+      }
+    </script>
+  </head>
+
+  <body class="{{ color_scheme }}">
+    <div id="login_form">
+      <h1>Login with your school email</h1>
+      <button id="google_login" onclick="redirect_to_google_login()">
+        Login with Google
+      </button>
+      <label for="message">{{ message }}</label>
+    </div>
+  </body>
+</html>
