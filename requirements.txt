@@ -1,0 +1,8 @@
+flask
+Flask-Minify[go]
+flask-mysqldb
+authlib
+requests
+xxhash
+pytz
+db-sqlite3

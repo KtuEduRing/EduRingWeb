@@ -6,6 +6,11 @@ class Config:
         with open(config_file, "rt") as f:
             self.config = json.load(f)
 
+        # --- general ---
+        self.production_server: str = self.config["general"]["production_server"]
+        self.email_domain: str = self.config["general"]["email_domain"]
+        self.timezone: str = self.config["general"]["timezone"]
+
         # --- app ---
         self.api_token_sha256: str = self.config["app"]["api_token_sha256"]
 
@@ -28,6 +33,11 @@ class Config:
             "redirect_uri"
         ]
 
-        # --- general ---
-        self.email_domain: str = self.config["general"]["email_domain"]
-        self.timezone: str = self.config["general"]["timezone"]
+        # --- database ---
+        self.mysql_host: str = self.config["db"]["mysql"]["host"]
+        self.mysql_port: int = self.config["db"]["mysql"]["port"]
+        self.mysql_name: str = self.config["db"]["mysql"]["name"]
+        self.mysql_username: str = self.config["db"]["mysql"]["username"]
+        self.mysql_password: str = self.config["db"]["mysql"]["password"]
+
+        self.sqlite_path: str = self.config["db"]["sqlite"]["path"]

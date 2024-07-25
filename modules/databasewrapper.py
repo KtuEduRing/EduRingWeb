@@ -39,7 +39,7 @@ More notes:
 - If the system needs to handle a large number of users or songs,
   partition the tables by date or user_id to improve query performance.
 - If system needs to support more advanced features,
-  such as song categories, playlists, or social interactions, you can add
+  such as song categories, playlists, or social interactions, add
   additional tables and relationships as needed.
 """
 
@@ -52,24 +52,33 @@ import sqlite3
 import base64
 
 class DatabaseWrapper:
-    def __init__(self, app: Flask, mysql: MySQL, sqlite_file: str = 'database.db'):
+    def __init__(self, app: Flask, db_type: str = 'mysql', mysql: MySQL = None, sqlite_file: str = 'database.db'):
         self.app = app
+        self.db_type = db_type
         self.mysql = mysql
         self.sqlite_file = sqlite_file
 
-    def construct_mysql_database(app: Flask, mysql: MySQL) -> int:
-        """Creates mysql database
+    def construct_mysql_database(self) -> int:
+        """Creates mysql database if not already exist
 
         Args:
             app   -- Flask(__name__)
             mysql -- MySQL(app)
 
         Return:
-            int: 0 if success
+            int: 0 if success, 1 if already exists
         """
 
-        with app.app_context():
-            cur = mysql.connection.cursor()
+        with self.app.app_context():
+            cur = self.mysql.connection.cursor()
+
+            # Check if the database structure already exists
+            cur.execute("SHOW TABLES")
+            existing_tables = cur.fetchall()
+            if existing_tables:
+                print("MySQL database structure already exists.")
+                cur.close()
+                return 1
 
             table_creation_queries = [
                 """
@@ -127,7 +136,7 @@ class DatabaseWrapper:
             for constraint in foreign_key_constraints:
                 cur.execute(constraint)
 
-            mysql.connection.commit()
+            self.mysql.connection.commit()
             cur.close()
 
             print("MySQL database structure created successfully.")
@@ -135,18 +144,24 @@ class DatabaseWrapper:
 
 
     def construct_sqlite_database(db_file:str = "database.db") -> int:
-        """Creates sqlite database
+        """Creates sqlite database if not already exist
 
         Args:
             db_file -- Database file (default: "database.db")
 
         Return:
-            int: 0 if success else -1
+            int: 0 if success, 1 if already exists, -1 if error
         """
-
 
         with sqlite3.connect(db_file) as conn:
             cur = conn.cursor()
+
+            # Check if the database structure already exists
+            cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            existing_tables = cur.fetchall()
+            if existing_tables:
+                print(f"SQLite database structure already exists in {db_file}.")
+                return 1
 
             tables = {
                 "Users": """
@@ -171,6 +186,7 @@ class DatabaseWrapper:
                         is_explicit INTEGER,
                         vote_count INTEGER,
                         FOREIGN KEY (user_id) REFERENCES Users(user_id)
+                    )
                 """,
                 "Song_Votes": """
                     CREATE TABLE IF NOT EXISTS Song_Votes (
@@ -199,7 +215,7 @@ class DatabaseWrapper:
             return 0
 
 
-    def register_new_user(self, username: str, ip: str, db_type: str = 'mysql') -> int:
+    def register_new_user(self, username: str, ip: str) -> int:
         """Register a new user in the database
 
         Args:
@@ -221,7 +237,7 @@ class DatabaseWrapper:
         VALUES (?, ?, ?, ?, ?, NULL, NULL, NULL)
         """
 
-        if db_type == 'mysql':
+        if self.db_type == 'mysql':
             with self.app.app_context():
                 cur = self.mysql.connection.cursor()
                 try:
@@ -247,7 +263,42 @@ class DatabaseWrapper:
                     conn.rollback()
                     return -1
 
-    def get_user_details(self, user_id: int, db_type: str = 'mysql') -> Optional[dict]:
+    def user_exists(self, username: str) -> bool:
+        """
+        Check if a user is registered in the database
+
+        Args:
+            username (str): The username to check
+            db_type (str, optional): The type of database to use. Defaults to 'mysql'.
+
+        Returns:
+            bool: True if the user is registered, False otherwise
+        """
+        encoded_username = base64.b64encode(username.encode()).decode()
+
+        query = "SELECT user_id FROM Users WHERE username = ?"
+
+        try:
+            if self.db_type == 'mysql':
+                with self.app.app_context():
+                    cur = self.mysql.connection.cursor()
+                    cur.execute(query, (encoded_username,))
+                    result = cur.fetchone()
+                    cur.close()
+            else:  # SQLite
+                with sqlite3.connect(self.sqlite_file) as conn:
+                    cur = conn.cursor()
+                    cur.execute(query, (encoded_username,))
+                    result = cur.fetchone()
+
+            return result is not None
+
+        except Exception as e:
+            print(f"Error checking if user is registered: {e}")
+            return False
+
+
+    def get_user_details(self, user_id: int) -> Optional[dict]:
         """Get user details from the database
 
         Args:
@@ -260,7 +311,7 @@ class DatabaseWrapper:
 
         query = "SELECT * FROM Users WHERE user_id = ?"
 
-        if db_type == 'mysql':
+        if self.db_type == 'mysql':
             with self.app.app_context():
                 cur = self.mysql.connection.cursor()
                 cur.execute(query, (user_id,))
@@ -286,7 +337,7 @@ class DatabaseWrapper:
             }
         return None
 
-    def update_user_login_info(self, user_id: int, ip: str, db_type: str = 'mysql') -> bool:
+    def update_user_login_info(self, user_id: int, ip: str) -> bool:
         """Update user's last login information
 
         Args:
@@ -301,7 +352,7 @@ class DatabaseWrapper:
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         query = "UPDATE Users SET last_login_datetime = ?, last_login_ip = ? WHERE user_id = ?"
 
-        if db_type == 'mysql':
+        if self.db_type == 'mysql':
             with self.app.app_context():
                 cur = self.mysql.connection.cursor()
                 try:
@@ -326,7 +377,7 @@ class DatabaseWrapper:
                     conn.rollback()
                     return False
 
-    def update_username(self, user_id: int, new_username: str, db_type: str = 'mysql') -> bool:
+    def update_username(self, user_id: int, new_username: str) -> bool:
         """Update user's username
 
         Args:
@@ -340,7 +391,7 @@ class DatabaseWrapper:
 
         query = "UPDATE Users SET username = ? WHERE user_id = ?"
 
-        if db_type == 'mysql':
+        if self.db_type == 'mysql':
             cur = self.mysql.connection.cursor()
             with self.app.app_context():
                 try:
@@ -365,7 +416,7 @@ class DatabaseWrapper:
                     conn.rollback()
                     return False
 
-    def submit_song(self, user_id: int, song_id: str, song_name: str, is_explicit: bool, db_type: str = 'mysql') -> bool:
+    def submit_song(self, user_id: int, song_id: str, song_name: str, is_explicit: bool) -> bool:
         """
         Submit a song to the database
 
@@ -403,7 +454,7 @@ class DatabaseWrapper:
         WHERE user_id = ?
         """
 
-        if db_type == 'mysql':
+        if self.db_type == 'mysql':
             with self.app.app_context():
                 cur = self.mysql.connection.cursor()
                 try:
@@ -432,7 +483,7 @@ class DatabaseWrapper:
                     conn.rollback()
                     return False
 
-    def get_songs_and_info(self, db_type: str = 'mysql') -> Optional[dict]:
+    def get_songs_and_info(self) -> Optional[dict]:
         """
         Get all songs and their related information from the database
 
@@ -452,7 +503,7 @@ class DatabaseWrapper:
         """
 
         try:
-            if db_type == 'mysql':
+            if self.db_type == 'mysql':
                 with self.app.app_context():
                     cur = self.mysql.connection.cursor(dictionary=True)
                     cur.execute(query)
@@ -489,8 +540,8 @@ class DatabaseWrapper:
             print(f"Error fetching songs and info: {e}")
             return None
 
-    # def vote_song(self, user_id: int, song_id: str, db_type: str = 'mysql'): pass
-    def vote_song(self, user_id: int, song_id: str, db_type: str = 'mysql') -> bool:
+    # def vote_song(self, user_id: int, song_id: str): pass
+    def vote_song(self, user_id: int, song_id: str) -> bool:
         """
         Allow a user to vote for a song
 
@@ -518,7 +569,7 @@ class DatabaseWrapper:
         """
         update_user_query = """
         UPDATE Users
-        SET voted_songs_ids = CASE 
+        SET voted_songs_ids = CASE
             WHEN voted_songs_ids IS NULL THEN ?
             ELSE CONCAT(voted_songs_ids, ',', ?)
         END
@@ -526,7 +577,7 @@ class DatabaseWrapper:
         """
 
         try:
-            if db_type == 'mysql':
+            if self.db_type == 'mysql':
                 with self.app.app_context():
                     cur = self.mysql.connection.cursor()
 
@@ -563,33 +614,33 @@ class DatabaseWrapper:
 
         except Exception as e:
             print(f"Error voting for song: {e}")
-            if db_type == 'mysql':
+            if self.db_type == 'mysql':
                 self.mysql.connection.rollback()
             else:
                 conn.rollback()
             return False
 
-if __name__ == '__main__':
-    app = Flask(__name__)
-    app.config['MYSQL_HOST'] = 'localhost'
-    app.config['MYSQL_USER'] = 'your_username'
-    app.config['MYSQL_PASSWORD'] = 'your_password'
-    app.config['MYSQL_DB'] = 'your_database_name'
-    mysql = MySQL(app)
+# if __name__ == '__main__':
+#     app = Flask(__name__)
+#     app.config['MYSQL_HOST'] = 'localhost'
+#     app.config['MYSQL_USER'] = 'your_username'
+#     app.config['MYSQL_PASSWORD'] = 'your_password'
+#     app.config['MYSQL_DB'] = 'your_database_name'
+#     mysql = MySQL(app)
 
-    db = DatabaseWrapper(app, mysql)
+#     db = DatabaseWrapper(app, mysql)
 
-    db.construct_mysql_database()
-    db.construct_sqlite_database()
+#     db.construct_mysql_database()
+#     db.construct_sqlite_database()
 
-    new_user_id = db.register_new_user("new_user", "192.168.1.1")
-    print(f"New user registered with id: {new_user_id}")
+#     new_user_id = db.register_new_user("new_user", "192.168.1.1")
+#     print(f"New user registered with id: {new_user_id}")
 
-    exists = db.username_exists("new_user")
-    print(f"Username 'new_user' exists: {exists}")
+#     exists = db.username_exists("new_user")
+#     print(f"Username 'new_user' exists: {exists}")
 
-    user_details = db.get_user_details(new_user_id)
-    print(f"User details: {user_details}")
+#     user_details = db.get_user_details(new_user_id)
+#     print(f"User details: {user_details}")
 
-    updated = db.update_user_login_info(new_user_id, "192.168.1.2")
-    print(f"User login updated: {updated}")
+#     updated = db.update_user_login_info(new_user_id, "192.168.1.2")
+#     print(f"User login updated: {updated}")
